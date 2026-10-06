@@ -137,7 +137,7 @@ pnpm wrangler pages dev --port 8790 --persist-to /tmp/slides-test
 | `pnpm admin:create:local [email]` / `pnpm admin:create [email]` | Create an admin, or reset an admin's password, in the local / remote database. The email defaults to `SUPERUSER_EMAIL`. |
 | `pnpm setup:local` / `pnpm setup` | Migrations plus the super user from `.env`, local / remote. |
 | `pnpm wrangler <args>` | Any wrangler command, with `.env` loaded and `wrangler.toml` synced. |
-| `pnpm deploy` | Build and deploy to Cloudflare Pages. |
+| `pnpm deploy:cloudflare` | Build and deploy to Cloudflare Pages. |
 
 ## Deploy
 
@@ -150,13 +150,13 @@ pnpm wrangler pages dev --port 8790 --persist-to /tmp/slides-test
 pnpm wrangler d1 create slides-db                       # paste the id it prints into D1_DATABASE_ID in .env
 pnpm setup                                              # remote migrations + super user from .env
 pnpm wrangler pages project create web-slides-students
-pnpm deploy
+pnpm deploy:cloudflare
 ```
 
 Then log in at `/admin`, **change the password**, and generate the first access code.
 
 **Updating an existing deployment:** run `pnpm db:migrate` first if `migrations/` has new files,
-then `pnpm deploy`. Migrations keep existing data.
+then `pnpm deploy:cloudflare`. Migrations keep existing data.
 
 ## Deploy the website on Vercel (optional)
 

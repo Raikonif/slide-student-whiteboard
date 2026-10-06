@@ -16,7 +16,7 @@
     "admin:create": "node scripts/create-admin.mjs --remote",
     "setup:local": "pnpm db:migrate:local && pnpm admin:create:local",
     "setup": "pnpm db:migrate && pnpm admin:create",
-    "deploy": "pnpm build && node scripts/wrangler.mjs pages deploy"
+    "deploy:cloudflare": "pnpm build && node scripts/wrangler.mjs pages deploy --branch main"
   },
   "dependencies": {
     "react": "^19.2.8",

@@ -7,7 +7,7 @@ binding = "DB"
 # database_name and database_id are written from .env (D1_DATABASE_NAME, D1_DATABASE_ID)
 # by scripts/env.mjs before every `pnpm` wrangler command; edit .env, not these lines.
 database_name = "slides-db"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "a11e45a1-846c-4632-a40c-e105d0c629de"
 # Local development always uses this id, so the local data survives changes to D1_DATABASE_ID.
 preview_database_id = "00000000-0000-0000-0000-000000000000"
 migrations_dir = "migrations"
