@@ -1,59 +1,216 @@
-# Slide Board
+# Pizarra de láminas · Slide Board
 
-People enter the current access code and their name. Each person becomes a glass
-microscope slide on a public whiteboard.
-
-- `/` is the public whiteboard (refreshes every 3 s): a fixed 3200 x 1950 canvas of fixed-size
-  slides (room for 150 in a grid), with Fit / 100% / zoom controls. **Click a slide** to zoom it
-  smoothly to the centre; if its learning doesn't fit on the glass, the full text is shown below it.
-  Each person can drag **their own** slide; a logged-in admin can drag any slide.
-  On phones the board opens as a **vertical list** of full-width slides in reading order
-  (top to bottom, left to right), with a name search and a List / Board switch.
-- `/code` → `/details` registers: access code first, then full name, email (required, private —
-  only the owner and the admin see it) and "What did you learn in class?" (up to 280 characters).
-  After saving you land back on the board.
-- `/login` → `/edit` lets an owner sign back in **on any device** with their email + the current
-  access code, edit their slide, and return to the board.
-- `/admin` is the super user panel. From there you can:
-  - generate the access code (**a new code makes the previous one invalid right away**;
-    people already registered keep their slide)
-  - see participants with their emails, and delete slides
-  - change your password
+A class whiteboard where every student becomes a glass microscope slide. Each person enters
+the current access code, writes their full name and one thing they learned in class, and their
+slide appears on a shared public board. They can move it around, and come back later from any
+device to edit it.
 
 The UI is in **Spanish by default**, with an ES/EN switch on every page (remembered per browser).
 
-Stack: React + Vite on **Cloudflare Pages**, API in **Pages Functions** (`functions/`, shared code
-in `server/`), data in **Cloudflare D1** (SQLite). Admin passwords are stored as PBKDF2 hashes,
-sessions are HttpOnly cookies, and login is rate limited (10 failures per IP per 15 min).
-The public board never receives emails.
+## Pages
+
+| Route | Who | What |
+|---|---|---|
+| `/` | Everyone | The public whiteboard (details below). |
+| `/code` | Students | Registration step 1: the access code. `/code?code=XXXX` links and QR codes are checked automatically. |
+| `/details` | Students | Step 2: full name, email and "¿Qué aprendiste en clase?" (up to 280 characters), with a live preview of the slide. Saving takes you back to the board. |
+| `/login` | Students | Sign back in **on any device** with your email and the current access code. |
+| `/edit` | Students | Edit your own slide. Your email is only visible here and to the admin. Saving takes you back to the board. |
+| `/admin` | Super user | Access code, participants, password (details below). |
+
+Unknown paths, and old `/board` links, open the board.
+
+### The whiteboard
+
+- The board is a fixed 3760 × 2040 canvas with fixed-size slides (360 × 120), enough for a 10 × 15
+  grid of 150 slides with no overlap.
+- New registrations fill the grid in arrival order.
+- Controls: **Ajustar/Fit**, **100%**, and zoom in/out.
+- The board refreshes every 3 s; there is no realtime connection.
+- **Click a slide** and it grows smoothly from its spot to the centre of the screen. If the learning
+  is cut off on the glass, the full text is shown in a card underneath. Close with ✕, by clicking
+  outside, or with Esc.
+- **Moving slides:**
+  - Each student can drag **their own** slide (outlined in lilac). This works from the browser
+    they registered or signed in with.
+  - A logged-in admin can drag every slide.
+  - A press that doesn't move counts as a click and opens the zoom view.
+- **On phones** (≤ 640 px) the board opens as a **vertical list** of full-width slides:
+  - The order follows the board, top to bottom and left to right.
+  - It has a name search that ignores accents ("tomas" finds "Tomás").
+  - A **Lista / Pizarra** switch shows the full board instead.
+- The full name always fits on the slide's label: the text shrinks until it does. Long learnings
+  end in "…" on the glass.
+
+### The admin panel
+
+- **Access code:** generate it, copy it, or copy a ready-made `/code?code=…` link (handy for a QR
+  code).
+  - There is one active code at a time. **Generating a new one makes the previous one stop working
+    immediately.**
+  - People already registered keep their slide.
+  - Until the first code is generated, registration is closed.
+- **Participants:** name, email, learning and registration time, newest first. You can search by
+  name or email, and delete a slide (click twice to confirm).
+- **Change password:** a collapsible section, closed by default. New passwords need at least 10
+  characters.
+- A link opens the board, where you can drag any slide.
+
+## Stack
+
+- **Frontend:** React 19 + Vite + TypeScript, plain CSS.
+- **Hosting:** Cloudflare Pages.
+- **API:** Cloudflare Pages Functions (`functions/`), with shared server code in `server/`.
+- **Database:** Cloudflare D1 (SQLite). Locally, wrangler runs D1 as a SQLite file in
+  `.wrangler/state`.
+
+There is no separate database server or Docker image to run.
 
 ## Local development
 
+Needs Node 20+ and pnpm.
+
 ```sh
 pnpm install
-pnpm db:migrate:local
-pnpm admin:create:local nandyycp@gmail.com   # prompts for the password (hidden)
-pnpm preview                                  # build + serve on http://localhost:8788
+pnpm db:migrate:local                         # creates / updates the local D1 database
+pnpm admin:create:local nandyycp@gmail.com    # creates the super user (asks for the password, hidden)
+pnpm preview                                  # build + serve everything on http://localhost:8788
 ```
 
-For hot reload: run `pnpm dev:api` (API on :8788, rebuild with `pnpm build` to refresh it)
-and `pnpm dev` (Vite proxies `/api` to it).
+Then open `http://localhost:8788/admin`, log in, and generate an access code. Students register at
+`/code`.
 
-## Deploy (one time)
+**Hot reload:** run `pnpm dev:api` (functions + D1 on :8788) and `pnpm dev` (Vite), which proxies
+`/api` to it. `dev:api` serves the last build, so run `pnpm build` to refresh it.
+
+**Looking at the local data:**
+
+```sh
+npx wrangler d1 execute slides-db --local --command "SELECT id, full_name, email FROM participants"
+```
+
+**A second, throwaway server** (for experiments that shouldn't touch your local data): give it its
+own port and database folder.
+
+```sh
+npx wrangler d1 migrations apply slides-db --local --persist-to /tmp/slides-test
+npx wrangler pages dev --port 8790 --persist-to /tmp/slides-test
+```
+
+### Scripts
+
+| Script | What it does |
+|---|---|
+| `pnpm dev` | Vite dev server (proxies `/api` to :8788). |
+| `pnpm dev:api` | Pages Functions + local D1 on :8788. |
+| `pnpm preview` | Build, then serve the whole app on :8788. |
+| `pnpm build` | Type-check the app and the functions, then build to `dist/`. |
+| `pnpm lint` | ESLint. |
+| `pnpm db:migrate:local` / `pnpm db:migrate` | Apply pending migrations to the local / remote database. |
+| `pnpm admin:create:local <email>` / `pnpm admin:create <email>` | Create an admin, or reset an admin's password, in the local / remote database. |
+| `pnpm deploy` | Build and deploy to Cloudflare Pages. |
+
+## Deploy
+
+**First time:**
 
 ```sh
 npx wrangler login
-npx wrangler d1 create slides-db          # copy the database_id into wrangler.toml
+npx wrangler d1 create slides-db              # paste the database_id it prints into wrangler.toml
 pnpm db:migrate
-pnpm admin:create nandyycp@gmail.com      # creates the super user in the remote DB
+pnpm admin:create nandyycp@gmail.com          # super user in the remote database
 npx wrangler pages project create web-slides-students
 pnpm deploy
 ```
 
-Then log in at `/admin`, **change the password**, and generate the first code.
+Then log in at `/admin`, **change the password**, and generate the first access code.
+
+**Updating an existing deployment:** run `pnpm db:migrate` first if `migrations/` has new files,
+then `pnpm deploy`. Migrations keep existing data.
 
 ## Admin users
 
-`pnpm admin:create <email>` adds an admin, or resets an existing admin's password and logs
-out their sessions. Use `admin:create:local` for the local DB. The password is never written
-to disk or to the repo.
+- `pnpm admin:create <email>` adds an admin. For an existing admin it resets the password and logs
+  out their sessions.
+- `admin:create:local` does the same in the local database.
+- The password comes from a hidden prompt (or the `ADMIN_PASSWORD` environment variable). It is
+  never written to disk, the repo or shell history.
+- Only its salted PBKDF2 hash is stored.
+
+## Security and privacy
+
+- **Emails stay private:** the public board API (`GET /api/slides`) only returns id, full name,
+  learning and position. Emails are visible only to their owner (at `/edit`) and in the admin panel.
+- **Admin sessions** use HttpOnly, SameSite=Strict cookies that last 7 days. Admin login is rate
+  limited to 10 failed attempts per IP per 15 minutes.
+- **Students have no password.**
+  - Registering and signing back in both need the **current** access code.
+  - Editing and moving a slide need its secret edit token, which the student's browser stores
+    after registering or signing in.
+  - Anyone who knows the current code and a student's email can sign in as that student. That's
+    fine for a classroom; regenerate the code after class to close it.
+- Emails are unique, compared case-insensitively.
+
+## Project structure
+
+```
+functions/api/            Pages Functions (one file per route)
+  register.ts               POST   /api/register            new slide (needs current code)
+  check-code.ts             POST   /api/check-code          validate code (step 1)
+  participant/index.ts      PUT    /api/participant         edit own slide (edit token)
+  participant/login.ts      POST   /api/participant/login   email + code -> edit token
+  slides/index.ts           GET    /api/slides              public board data
+  slides/[id].ts            PUT    /api/slides/:id          move (owner token or admin)
+                            DELETE /api/slides/:id          delete (admin)
+  auth/                     admin login / logout / me / password
+  admin/                    access code (GET/POST), participants list
+server/                   shared server code: auth & sessions, access code, validation,
+                          error codes (errors.ts)
+migrations/               D1 schema, applied in order (never edit an applied one; add a new file)
+scripts/create-admin.mjs  create / reset an admin
+src/
+  BoardPage.tsx           whiteboard: canvas, zoom, drag, phone list view
+  SlideZoom.tsx           click-to-zoom view
+  GlassSlide.tsx          the slide itself (name auto-fit, learning, stained tissue)
+  RegisterPage.tsx        /code, /details, /login, /edit
+  AdminPage.tsx           /admin
+  api.ts                  typed API client
+  myEntry.ts              this browser's own slide (localStorage)
+  i18n/                   translations, one file per area (see below)
+  ui/                     TopBar, Brand, LangToggle, Rich
+  index.css               design system + board/slide styles
+  register.css, admin.css page styles
+```
+
+## Translations
+
+- Strings live in `src/i18n/<area>.ts` (`common`, `board`, `register`, `admin`, `errors`), each
+  shaped `{ es: {...}, en: {...} }`.
+- Use them as `t('area.key')`. Values can include `{placeholders}`, and `<em>…</em>` for the lilac
+  accent in headings.
+- **API errors:** the API returns `{ error, code }`. The frontend shows `errors.<code>` from
+  `src/i18n/errors.ts`, falling back to the English `error` text. To add one, add the code to
+  `server/errors.ts` and translate it in `src/i18n/errors.ts`.
+- If a key is missing in English, the Spanish text is shown.
+
+## Design
+
+The look is called **"H&E"**, after hematoxylin and eosin, the two stains on a real pathology slide.
+
+- **Colours:** hematoxylin gives the lilac accent (`--lilac`) and the violet used for actions
+  (`--violet`). Eosin gives the pink (`--eosin`).
+- **Fonts:** headings in *Fraunces*, the interface in *Figtree*, and slides handwritten in *Caveat*.
+- **Shared classes:** tokens and components (`.btn`, `.card`, `.field`, `.input`, `.chip`,
+  `.notice`, …) are in `src/index.css`.
+- Animations respect `prefers-reduced-motion`.
+
+## Troubleshooting
+
+- **The board says "Se perdió la conexión, reintentando…" / "Connection lost"**
+  - The API call is failing.
+  - The most common cause is a migration that hasn't been applied. Run `pnpm db:migrate:local`
+    (or `pnpm db:migrate` on the deployment).
+  - Also check that the server is running.
+- **`Address already in use` when starting wrangler:** another `wrangler pages dev` is already
+  using that port. Stop it, or use `--port` with another number.
+- **Registration says it's closed:** no access code has been generated yet. Generate one in `/admin`.
