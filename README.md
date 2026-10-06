@@ -158,6 +158,33 @@ Then log in at `/admin`, **change the password**, and generate the first access 
 **Updating an existing deployment:** run `pnpm db:migrate` first if `migrations/` has new files,
 then `pnpm deploy`. Migrations keep existing data.
 
+## Deploy the website on Vercel (optional)
+
+Vercel can serve the website, but it can't run the API or the database: Pages Functions and D1
+only run on Cloudflare. `vercel.json` handles the split:
+
+- Vercel builds and serves the React app (`pnpm build` → `dist/`), with every page route sent to
+  `index.html`.
+- Every `/api/*` request is forwarded to the Cloudflare deployment. To the browser everything
+  stays on your Vercel domain, so admin login cookies work and no CORS setup is needed.
+
+Steps:
+
+1. Deploy to Cloudflare first (above). The API must be live there.
+2. In `vercel.json`, check that the `/api/:path*` destination matches your Cloudflare Pages URL. It
+   defaults to `https://web-slides-students.pages.dev`; use your custom domain if you added one.
+3. Import the repo in Vercel. Framework, install, build and output are all set in `vercel.json`.
+   To make Vercel use the pinned pnpm version (`packageManager` in `package.json`), add the
+   environment variable `ENABLE_EXPERIMENTAL_COREPACK=1` in the Vercel project settings.
+4. Deploy. No other Vercel environment variables are needed: the database and secrets stay on
+   Cloudflare.
+
+What to know:
+- **Admin login rate limiting:** behind Vercel, the API sees Vercel's servers instead of each
+  visitor's IP. All admin login attempts therefore share one limit of 10 failures per 15 minutes.
+  This doesn't affect students, who don't log in with a password.
+- **The Cloudflare URL still works directly** and serves the same app.
+
 ## Admin users
 
 - `pnpm admin:create [email]` adds an admin. For an existing admin it resets the password and logs
