@@ -1,0 +1,238 @@
+/* =========================================================
+   Participant pages: /code, /details, /login, /edit
+   ========================================================= */
+
+.reg-page {
+  min-height: 100svh;
+  padding: 14px 16px 48px;
+  overflow-x: clip;
+}
+
+.reg-main {
+  position: relative;
+  display: grid;
+  gap: 24px;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding-top: clamp(28px, 7vh, 64px);
+}
+
+/* A faint stained sample bleeding behind the heading */
+.reg-main::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: clamp(4px, 3vh, 28px);
+  right: -40px;
+  width: 220px;
+  height: 160px;
+  border-radius: 58% 42% 55% 45% / 48% 60% 40% 52%;
+  background:
+    radial-gradient(circle at 30% 40%, rgba(109, 75, 184, 0.16) 0 2px, transparent 3px) 0 0 / 18px 16px,
+    radial-gradient(ellipse at 45% 50%, rgba(228, 141, 176, 0.32), rgba(228, 141, 176, 0.12) 60%, transparent 72%);
+  filter: blur(0.3px);
+  rotate: -12deg;
+  pointer-events: none;
+}
+
+/* ---------- Heading + steps ---------- */
+
+.reg-head {
+  display: grid;
+  gap: 10px;
+}
+
+.reg-head h1 {
+  font-size: clamp(34px, 9vw, 44px);
+}
+
+.reg-head .muted {
+  max-width: 40ch;
+}
+
+.reg-steps {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.reg-steps-bar {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.reg-steps-bar span {
+  width: 28px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--lilac-200);
+}
+
+.reg-steps-bar span.is-on {
+  background: linear-gradient(90deg, var(--violet), var(--lilac));
+}
+
+/* ---------- Forms ---------- */
+
+.reg-form {
+  display: grid;
+  gap: 18px;
+}
+
+.reg-form .notice a {
+  color: inherit;
+  font-weight: 600;
+}
+
+.reg-code-input {
+  font-family: var(--mono);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-align: center;
+  text-transform: uppercase;
+  padding-block: 16px;
+  /* Letter-spacing adds trailing space; balance it so the code looks centered */
+  text-indent: 0.28em;
+  background: linear-gradient(var(--lilac-50), var(--surface));
+}
+
+.reg-code-input::placeholder {
+  color: var(--lilac);
+  letter-spacing: 0.4em;
+}
+
+.reg-code-input-sm {
+  font-size: 19px;
+  padding-block: 12px;
+}
+
+.reg-alt {
+  text-align: center;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.reg-alt a {
+  font-weight: 600;
+}
+
+.reg-tip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--eosin-50);
+  color: var(--ink-soft);
+}
+
+.reg-tip::before {
+  content: '';
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--eosin);
+  box-shadow: 0 0 0 4px rgba(228, 141, 176, 0.25);
+}
+
+/* ---------- Slide preview ---------- */
+
+.reg-preview {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.reg-preview-slide {
+  width: min(100%, 330px);
+  aspect-ratio: 3 / 1;
+  rotate: -2deg;
+  transition: rotate 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  filter: drop-shadow(0 14px 22px rgba(85, 56, 154, 0.14));
+}
+
+.reg-preview-slide:hover {
+  rotate: 0deg;
+}
+
+/* ---------- "You already have a slide" ---------- */
+
+.reg-existing {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  background: linear-gradient(135deg, var(--lilac-50), var(--surface) 55%, var(--eosin-50));
+}
+
+.reg-existing h2 {
+  font-size: 22px;
+}
+
+.reg-existing-text {
+  display: grid;
+  gap: 4px;
+}
+
+.reg-existing-slide {
+  width: 150px;
+  aspect-ratio: 3 / 1;
+  rotate: 2deg;
+}
+
+.reg-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ---------- Entry motion ---------- */
+
+.reg-main > * {
+  animation: reg-rise 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.reg-main > :nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.reg-main > :nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.reg-main > :nth-child(n + 4) {
+  animation-delay: 0.15s;
+}
+
+@keyframes reg-rise {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reg-main > * {
+    animation: none;
+  }
+
+  .reg-preview-slide {
+    transition: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .reg-form {
+    padding: 20px 18px;
+  }
+
+  .reg-code-input {
+    font-size: 22px;
+    letter-spacing: 0.2em;
+    text-indent: 0.2em;
+  }
+}

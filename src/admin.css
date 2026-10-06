@@ -1,0 +1,482 @@
+/* =========================================================
+   Admin panel — "H&E stain": hematoxylin lilac/violet + eosin pink.
+   Builds on the design system in index.css.
+   ========================================================= */
+
+.admin-shell {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 16px 16px 48px;
+}
+
+.admin-loading {
+  padding: 48px 0;
+  text-align: center;
+}
+
+.admin-email {
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.admin-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Heading ---------- */
+
+.admin {
+  display: grid;
+  gap: 28px;
+  margin-top: 32px;
+}
+
+.admin-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 24px;
+}
+
+.admin-hero-text {
+  display: grid;
+  gap: 8px;
+  max-width: 620px;
+}
+
+.admin-hero h1 {
+  font-size: clamp(32px, 5vw, 46px);
+}
+
+.admin-board-link {
+  flex-shrink: 0;
+}
+
+.admin-board-link span {
+  transition: transform 0.15s ease;
+}
+
+.admin-board-link:hover span {
+  transform: translateX(3px);
+}
+
+/* ---------- Layout ---------- */
+
+.admin-grid {
+  display: grid;
+  gap: 20px;
+  align-items: start;
+}
+
+.admin-side {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+
+@media (min-width: 960px) {
+  .admin-grid {
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+
+  .admin-side {
+    position: sticky;
+    top: 16px;
+  }
+}
+
+.admin-card {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.admin-card-title {
+  font-size: 22px;
+}
+
+.admin-form {
+  display: grid;
+  gap: 16px;
+}
+
+/* ---------- Change password: collapsible ---------- */
+
+.password-card {
+  gap: 0;
+}
+
+.password-card summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: -8px;
+  padding: 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.password-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.password-card summary:hover {
+  background: var(--lilac-50);
+}
+
+.password-chevron {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--lilac-100);
+  position: relative;
+  transition: transform 0.25s ease;
+}
+
+/* Chevron drawn with two borders */
+.password-chevron::before {
+  content: '';
+  position: absolute;
+  top: 9px;
+  left: 10.5px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--violet);
+  border-bottom: 2px solid var(--violet);
+  transform: rotate(45deg);
+}
+
+.password-card[open] .password-chevron {
+  transform: rotate(180deg);
+}
+
+.password-card[open] .admin-form {
+  margin-top: 18px;
+  animation: password-open 0.25s ease;
+}
+
+@keyframes password-open {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .password-chevron,
+  .password-card[open] .admin-form {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ---------- Access code: the hero card ---------- */
+
+.code-card {
+  position: relative;
+  overflow: hidden;
+  border-color: var(--lilac-200);
+}
+
+/* Eosin wash in the corner, like stain bleeding past the cover slip */
+.code-card::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  right: -80px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(228, 141, 176, 0.22), transparent 70%);
+  pointer-events: none;
+}
+
+.code-card > * {
+  position: relative;
+}
+
+/* Frosted label end of a glass slide */
+.code-label {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  padding: 22px 16px 24px;
+  border: 1px solid var(--lilac);
+  border-radius: 6px;
+  background-color: var(--lilac-50);
+  background-image:
+    radial-gradient(rgba(85, 56, 154, 0.07) 0.7px, transparent 0.9px),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(221, 208, 246, 0.55));
+  background-size:
+    3px 3px,
+    100% 100%;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 0 0 4px rgba(255, 255, 255, 0.45),
+    0 6px 18px -10px rgba(85, 56, 154, 0.45);
+  text-align: center;
+}
+
+.code-label-caption {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--violet);
+}
+
+.code-value {
+  font-family: var(--mono);
+  /* Sized so all 8 characters stay on one line in the 320px side column */
+  font-size: clamp(24px, 8.5vw, 34px);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  white-space: nowrap;
+  /* Balance the trailing letter-spacing so the code looks centred */
+  padding-left: 0.18em;
+  line-height: 1.1;
+  color: var(--marker);
+  animation: code-in 0.35s ease;
+}
+
+.code-empty {
+  padding: 6px 0;
+}
+
+.code-label.is-empty {
+  border-style: dashed;
+}
+
+@keyframes code-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.code-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.code-copy {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* ---------- Participants ---------- */
+
+.participants-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+}
+
+.participants-search {
+  flex: 1 1 220px;
+  max-width: 320px;
+  margin-left: auto;
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-size: 15px;
+}
+
+.participants-empty {
+  padding: 32px 0;
+  text-align: center;
+}
+
+.table-scroll {
+  max-height: min(70svh, 760px);
+  overflow: auto;
+  margin: 0 -24px -24px;
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.participants {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 15px;
+}
+
+.participants th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--violet-700);
+  white-space: nowrap;
+  background: var(--lilac-50);
+  border-bottom: 1px solid var(--lilac-200);
+}
+
+.participants td {
+  padding: 12px 14px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border);
+}
+
+.participants th:first-child,
+.participants td:first-child {
+  padding-left: 24px;
+}
+
+.participants th:last-child,
+.participants td:last-child {
+  padding-right: 20px;
+}
+
+.participants tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.participants tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.participants tbody tr:hover {
+  background: var(--eosin-50);
+}
+
+.cell-name {
+  font-weight: 600;
+  min-width: 160px;
+}
+
+.cell-email {
+  white-space: nowrap;
+  color: var(--ink-soft);
+}
+
+.cell-learning {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink-soft);
+}
+
+.cell-date {
+  white-space: nowrap;
+  font-size: 14px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.cell-action {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cell-action .btn-ghost {
+  color: var(--error);
+}
+
+.cell-action .btn-ghost:hover:not(:disabled) {
+  background: var(--error-bg);
+  color: var(--error);
+}
+
+/* ---------- Login ---------- */
+
+.admin-login {
+  display: grid;
+  place-items: center;
+  min-height: calc(100svh - 120px);
+  padding: 32px 0;
+}
+
+.admin-login-card {
+  display: grid;
+  gap: 18px;
+  width: 100%;
+  max-width: 420px;
+  border-top: 4px solid var(--violet);
+}
+
+.admin-login-head {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-login-head h1 {
+  font-size: 32px;
+}
+
+.admin-login-back {
+  justify-self: center;
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 520px) {
+  .admin {
+    margin-top: 20px;
+  }
+
+  .admin .card {
+    padding: 20px;
+  }
+
+  .table-scroll {
+    margin: 0 -20px -20px;
+  }
+
+  .participants th:first-child,
+  .participants td:first-child {
+    padding-left: 20px;
+  }
+
+  .participants-search {
+    max-width: none;
+    margin-left: 0;
+  }
+
+  .admin-board-link {
+    width: 100%;
+  }
+
+  .code-copy {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .code-value {
+    animation: none;
+  }
+
+  .admin-board-link span,
+  .participants tbody tr {
+    transition: none;
+  }
+
+  .admin-board-link:hover span {
+    transform: none;
+  }
+}

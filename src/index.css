@@ -1,0 +1,788 @@
+/* =========================================================
+   Design system — "H&E": hematoxylin lilac/violet + eosin pink,
+   the stains on a real pathology slide.
+   Page-specific styles live next to each page (register.css, admin.css).
+   ========================================================= */
+
+:root {
+  /* Ink */
+  --ink: #231a35;
+  --ink-soft: #4a3f5e;
+  --muted: #6f6683;
+
+  /* Surfaces */
+  --page: #f7f4fb;
+  --surface: #ffffff;
+  --border: #e6dff0;
+  --border-strong: #cfc3e3;
+
+  /* Hematoxylin: lilac accent + violet for actions */
+  --lilac: #b9a3e8;
+  --lilac-200: #ddd0f6;
+  --lilac-100: #ebe3fa;
+  --lilac-50: #f4effc;
+  --violet: #6d4bb8;
+  --violet-700: #55389a;
+
+  /* Eosin */
+  --eosin: #e48db0;
+  --eosin-50: #fcecf3;
+
+  /* Status */
+  --error: #b42335;
+  --error-bg: #fdecef;
+  --success: #227a52;
+  --success-bg: #e6f5ec;
+
+  /* Slides & board */
+  --marker: #2b2363;
+  --board: #fdfcfe;
+  --board-grid: rgba(109, 75, 184, 0.06);
+
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 22px;
+  --shadow-sm: 0 1px 2px rgba(35, 26, 53, 0.06);
+  --shadow: 0 1px 2px rgba(35, 26, 53, 0.05), 0 10px 30px -8px rgba(85, 56, 154, 0.16);
+  --ring: 0 0 0 4px var(--lilac-200);
+
+  --display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --sans: 'Figtree', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, 'SF Mono', Consolas, monospace;
+  --hand: 'Caveat', 'Bradley Hand', 'Segoe Print', cursive;
+
+  color-scheme: light;
+  font: 16px/1.55 var(--sans);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  background-color: var(--page);
+  /* Soft stain blooms in the corners */
+  background-image:
+    radial-gradient(60rem 40rem at -10% -20%, rgba(185, 163, 232, 0.28), transparent 60%),
+    radial-gradient(50rem 36rem at 115% 110%, rgba(228, 141, 176, 0.16), transparent 60%);
+  background-attachment: fixed;
+}
+
+a {
+  color: var(--violet);
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: var(--violet-700);
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.12;
+  color: var(--ink);
+}
+
+/* Use <em> inside headings for the lilac italic accent */
+h1 em,
+h2 em {
+  font-style: italic;
+  color: var(--violet);
+}
+
+p {
+  margin: 0;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.small {
+  font-size: 14px;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+/* ---------- Top bar ---------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-left: auto;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+}
+
+.brand:hover {
+  color: var(--violet-700);
+}
+
+.lang-toggle {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--lilac-100);
+}
+
+.lang-toggle button {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.lang-toggle button[aria-pressed='true'] {
+  background: var(--surface);
+  color: var(--violet-700);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 12px 20px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.btn-primary {
+  background: var(--violet);
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 6px 16px -6px rgba(85, 56, 154, 0.6);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--violet-700);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--border-strong);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--lilac);
+  background: var(--lilac-50);
+  color: var(--ink);
+}
+
+.btn-ghost {
+  background: none;
+  color: var(--violet);
+  padding-inline: 10px;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--lilac-50);
+  color: var(--violet-700);
+}
+
+.btn-danger {
+  background: var(--error);
+  color: #fff;
+}
+
+.btn-sm {
+  padding: 7px 14px;
+  font-size: 14px;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+/* ---------- Forms ---------- */
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field > label,
+.field-label {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.field-hint {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.input,
+.textarea {
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  color: var(--ink);
+  padding: 12px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: var(--surface);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.input:hover,
+.textarea:hover {
+  border-color: var(--lilac);
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--violet);
+  box-shadow: var(--ring);
+}
+
+.textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.char-count {
+  justify-self: end;
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Cards & notices ---------- */
+
+.card {
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.notice {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 15px;
+}
+
+.notice-error {
+  background: var(--error-bg);
+  color: var(--error);
+}
+
+.notice-success {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--lilac-100);
+  color: var(--violet-700);
+  border: 0;
+}
+
+button.chip {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+button.chip:hover {
+  background: var(--lilac-200);
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--violet);
+}
+
+/* ---------- Board page ---------- */
+
+.board-page {
+  display: flex;
+  flex-direction: column;
+  height: 100svh;
+  padding: 14px 16px 16px;
+  gap: 12px;
+}
+
+.board-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.board-tools .error {
+  color: var(--error);
+  font-size: 14px;
+}
+
+.zoom {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.zoom button {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 34px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.zoom button:hover {
+  background: var(--lilac-50);
+}
+
+.zoom button[aria-pressed='true'] {
+  background: var(--lilac-100);
+  color: var(--violet-700);
+}
+
+/* Scrollable viewport onto the fixed-size canvas */
+.board {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border-radius: var(--radius-lg);
+  background: var(--board);
+  border: 1px solid var(--border);
+  box-shadow:
+    inset 0 0 0 6px var(--surface),
+    inset 0 0 0 7px var(--lilac-100),
+    var(--shadow);
+}
+
+/* Fit mode never scrolls; hiding scrollbars also stops them shrinking the measured size */
+.board.fit {
+  overflow: hidden;
+}
+
+.board-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  background-color: var(--board);
+  background-image: radial-gradient(var(--board-grid) 1.6px, transparent 1.8px);
+  background-size: 40px 40px;
+}
+
+.board-empty {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  margin: 0;
+  padding: 24px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.board-empty h2 {
+  font-size: 26px;
+}
+
+.slide-pos {
+  position: absolute;
+  top: 0;
+  left: 0;
+  user-select: none;
+  cursor: zoom-in;
+  border-radius: 4px;
+  transition: filter 0.2s ease;
+}
+
+.slide-pos:hover {
+  filter: drop-shadow(0 8px 14px rgba(85, 56, 154, 0.18));
+}
+
+.board.animate .slide-pos {
+  /* Smoothly glide when a poll brings in a new position */
+  transition:
+    transform 0.6s ease,
+    filter 0.2s ease;
+}
+
+.slide-pos.can-drag {
+  cursor: grab;
+  touch-action: none;
+}
+
+.board .slide-pos.dragging {
+  transition: none;
+  cursor: grabbing;
+}
+
+.slide-pos.dragging .glass-slide {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 18px 34px rgba(85, 56, 154, 0.28),
+    0 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+/* The viewer's own slide */
+.slide-pos.mine .glass-slide {
+  outline: 3px solid var(--lilac);
+  outline-offset: 4px;
+}
+
+/* While a slide is open in the zoom view, its spot on the board is left empty */
+.slide-pos.is-open {
+  visibility: hidden;
+}
+
+/* ---------- List view (default on phones) ---------- */
+
+.view-toggle {
+  margin-left: auto;
+}
+
+.list-search {
+  flex: 1 1 160px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 15px;
+}
+
+.slide-list-wrap {
+  padding: 14px;
+}
+
+.slide-list {
+  display: grid;
+  /* One full-width column on phones; more columns if a wide screen picks the list */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slide-item {
+  display: block;
+  width: 100%;
+  /* Buttons centre text by default; slides read left-aligned like on the board */
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  aspect-ratio: 3;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  cursor: zoom-in;
+  /* Skip rendering off-screen slides until they scroll near */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 120px;
+  transition: transform 0.15s ease;
+}
+
+.slide-item:active {
+  transform: scale(0.98);
+}
+
+.slide-item.mine .glass-slide {
+  outline: 3px solid var(--lilac);
+  outline-offset: 3px;
+}
+
+.slide-item.is-open {
+  visibility: hidden;
+}
+
+.list-empty {
+  padding: 24px 8px;
+  text-align: center;
+}
+
+/* ---------- Glass microscope slide ---------- */
+
+.glass-slide {
+  container-type: size;
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 3px;
+  border: 1px solid rgba(130, 120, 170, 0.5);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.7),
+    rgba(225, 215, 245, 0.42) 45%,
+    rgba(240, 235, 250, 0.35) 60%,
+    rgba(215, 205, 240, 0.5)
+  );
+  backdrop-filter: blur(1.5px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(100, 80, 150, 0.22),
+    0 6px 14px rgba(55, 40, 90, 0.14),
+    0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+/* Light sheen across the glass */
+.glass-slide::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.55) 45%,
+    transparent 52%,
+    transparent 70%,
+    rgba(255, 255, 255, 0.25) 75%,
+    transparent 80%
+  );
+}
+
+/* Frosted writing area */
+.slide-label {
+  display: flex;
+  width: 47%;
+  padding: 7cqh 5cqh;
+  background-color: #f6f5f3;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.05) 0.6px, transparent 0.8px);
+  background-size: 3px 3px;
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.slide-name {
+  /* Font size is set by useFitText so the full name always fits */
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  font-family: var(--hand);
+  font-weight: 600;
+  font-size: 26cqh;
+  line-height: 1;
+  color: var(--marker);
+}
+
+.cover-slip {
+  position: absolute;
+  top: 9%;
+  bottom: 9%;
+  left: 50%;
+  right: 3%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 0 1px rgba(130, 120, 170, 0.16);
+}
+
+.tissue {
+  position: absolute;
+  inset: 5%;
+  width: 90%;
+  height: 90%;
+}
+
+/* With a learning written on it, the tissue fades into the background */
+.cover-slip:has(.slide-learning) .tissue {
+  opacity: 0.28;
+}
+
+.slide-learning {
+  position: relative;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+  padding: 0 4cqh;
+  font-family: var(--hand);
+  font-weight: 600;
+  font-size: 15.5cqh;
+  line-height: 1.05;
+  color: #2c2541;
+  overflow-wrap: break-word;
+  white-space: pre-line;
+}
+
+/* ---------- Slide zoom view ---------- */
+
+.zoom-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(35, 26, 53, 0.42);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.zoom-backdrop.open {
+  opacity: 1;
+}
+
+.zoom-slide {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 51;
+  transform-origin: 0 0;
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: zoom-out;
+  filter: drop-shadow(0 30px 50px rgba(35, 26, 53, 0.35));
+}
+
+.zoom-panel {
+  position: fixed;
+  left: 50%;
+  z-index: 52;
+  width: min(calc(100vw - 32px), 760px);
+  max-height: 40svh;
+  overflow: auto;
+  translate: -50% 12px;
+  opacity: 0;
+  transition:
+    opacity 0.3s ease 0.15s,
+    translate 0.3s ease 0.15s;
+}
+
+.zoom-panel.open {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+.zoom-panel .card {
+  display: grid;
+  gap: 10px;
+}
+
+.zoom-panel .learning-full {
+  font-family: var(--hand);
+  font-size: 26px;
+  line-height: 1.2;
+  color: var(--marker);
+  white-space: pre-line;
+  overflow-wrap: break-word;
+}
+
+.zoom-close {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 53;
+}
+
+@media (max-width: 560px) {
+  .board-page {
+    padding: 10px 12px 12px;
+    gap: 10px;
+  }
+
+  .board-page .brand {
+    font-size: 17px;
+  }
+
+  .board-page .topbar-actions {
+    gap: 6px;
+  }
+
+  .board-page .btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zoom-slide,
+  .zoom-backdrop,
+  .zoom-panel,
+  .board.animate .slide-pos {
+    transition: none;
+  }
+}
