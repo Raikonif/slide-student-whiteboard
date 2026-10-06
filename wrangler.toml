@@ -4,7 +4,10 @@ pages_build_output_dir = "dist"
 
 [[d1_databases]]
 binding = "DB"
+# database_name and database_id are written from .env (D1_DATABASE_NAME, D1_DATABASE_ID)
+# by scripts/env.mjs before every `pnpm` wrangler command; edit .env, not these lines.
 database_name = "slides-db"
-# Replace with the id printed by `wrangler d1 create slides-db`
 database_id = "00000000-0000-0000-0000-000000000000"
+# Local development always uses this id, so the local data survives changes to D1_DATABASE_ID.
+preview_database_id = "00000000-0000-0000-0000-000000000000"
 migrations_dir = "migrations"

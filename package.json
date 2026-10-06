@@ -5,15 +5,18 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:api": "wrangler pages dev --port 8788",
+    "dev:api": "node scripts/wrangler.mjs pages dev --port 8788",
     "build": "tsc -b && tsc -p functions && vite build",
     "lint": "eslint .",
-    "preview": "vite build && wrangler pages dev --port 8788",
-    "db:migrate:local": "wrangler d1 migrations apply slides-db --local",
-    "db:migrate": "wrangler d1 migrations apply slides-db --remote",
-    "deploy": "pnpm build && wrangler pages deploy",
+    "preview": "vite build && node scripts/wrangler.mjs pages dev --port 8788",
+    "wrangler": "node scripts/wrangler.mjs",
+    "db:migrate:local": "node scripts/wrangler.mjs d1 migrations apply DB --local",
+    "db:migrate": "node scripts/wrangler.mjs d1 migrations apply DB --remote",
     "admin:create:local": "node scripts/create-admin.mjs",
-    "admin:create": "node scripts/create-admin.mjs --remote"
+    "admin:create": "node scripts/create-admin.mjs --remote",
+    "setup:local": "pnpm db:migrate:local && pnpm admin:create:local",
+    "setup": "pnpm db:migrate && pnpm admin:create",
+    "deploy": "pnpm build && node scripts/wrangler.mjs pages deploy"
   },
   "dependencies": {
     "react": "^19.2.8",

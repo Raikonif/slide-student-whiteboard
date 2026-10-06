@@ -66,15 +66,42 @@ Unknown paths, and old `/board` links, open the board.
 
 There is no separate database server or Docker image to run.
 
+## Configuration (`.env`)
+
+All settings for the database and the first super user live in `.env`. It is gitignored. Copy
+`.env.example` to start:
+
+```sh
+cp .env.example .env
+```
+
+| Variable | Used for |
+|---|---|
+| `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN` | Remote commands (deploy, remote migrations, remote admin). The token needs *Cloudflare Pages: Edit* and *D1: Edit*. Leave empty to use `pnpm wrangler login` instead. |
+| `D1_DATABASE_NAME` | Name of the D1 database (default `slides-db`). |
+| `D1_DATABASE_ID` | ID printed by `pnpm wrangler d1 create <name>`. Leave empty for local-only development. |
+| `SUPERUSER_EMAIL` | The first super user, created by `pnpm setup:local` / `pnpm setup`. |
+| `SUPERUSER_PASSWORD` | Their password. Leave empty to be asked for it (hidden). |
+
+How the values are used:
+- The `pnpm` scripts read `.env` through `scripts/env.mjs`.
+- Before every wrangler command they write `D1_DATABASE_NAME` and `D1_DATABASE_ID` into
+  `wrangler.toml`. Edit `.env`, not those lines.
+- **Local development always uses a fixed local database id** (`preview_database_id`), so
+  changing `D1_DATABASE_ID` never hides your local data.
+- The deployed app doesn't read `.env`.
+- `.dev.vars` (also gitignored) exists so that `wrangler pages dev` doesn't load `.env` into the
+  local Worker. The token and password stay out of the app.
+
 ## Local development
 
-Needs Node 20+ and pnpm.
+Needs Node 20.12+ and pnpm.
 
 ```sh
 pnpm install
-pnpm db:migrate:local                         # creates / updates the local D1 database
-pnpm admin:create:local nandyycp@gmail.com    # creates the super user (asks for the password, hidden)
-pnpm preview                                  # build + serve everything on http://localhost:8788
+cp .env.example .env    # set SUPERUSER_EMAIL (and SUPERUSER_PASSWORD, or you'll be asked)
+pnpm setup:local        # creates / updates the local database and the super user
+pnpm preview            # build + serve everything on http://localhost:8788
 ```
 
 Then open `http://localhost:8788/admin`, log in, and generate an access code. Students register at
@@ -86,15 +113,15 @@ Then open `http://localhost:8788/admin`, log in, and generate an access code. St
 **Looking at the local data:**
 
 ```sh
-npx wrangler d1 execute slides-db --local --command "SELECT id, full_name, email FROM participants"
+pnpm wrangler d1 execute DB --local --command "SELECT id, full_name, email FROM participants"
 ```
 
 **A second, throwaway server** (for experiments that shouldn't touch your local data): give it its
 own port and database folder.
 
 ```sh
-npx wrangler d1 migrations apply slides-db --local --persist-to /tmp/slides-test
-npx wrangler pages dev --port 8790 --persist-to /tmp/slides-test
+pnpm wrangler d1 migrations apply DB --local --persist-to /tmp/slides-test
+pnpm wrangler pages dev --port 8790 --persist-to /tmp/slides-test
 ```
 
 ### Scripts
@@ -107,19 +134,22 @@ npx wrangler pages dev --port 8790 --persist-to /tmp/slides-test
 | `pnpm build` | Type-check the app and the functions, then build to `dist/`. |
 | `pnpm lint` | ESLint. |
 | `pnpm db:migrate:local` / `pnpm db:migrate` | Apply pending migrations to the local / remote database. |
-| `pnpm admin:create:local <email>` / `pnpm admin:create <email>` | Create an admin, or reset an admin's password, in the local / remote database. |
+| `pnpm admin:create:local [email]` / `pnpm admin:create [email]` | Create an admin, or reset an admin's password, in the local / remote database. The email defaults to `SUPERUSER_EMAIL`. |
+| `pnpm setup:local` / `pnpm setup` | Migrations plus the super user from `.env`, local / remote. |
+| `pnpm wrangler <args>` | Any wrangler command, with `.env` loaded and `wrangler.toml` synced. |
 | `pnpm deploy` | Build and deploy to Cloudflare Pages. |
 
 ## Deploy
 
 **First time:**
 
+1. Fill in `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` in `.env`, or run `pnpm wrangler login`.
+2. Then:
+
 ```sh
-npx wrangler login
-npx wrangler d1 create slides-db              # paste the database_id it prints into wrangler.toml
-pnpm db:migrate
-pnpm admin:create nandyycp@gmail.com          # super user in the remote database
-npx wrangler pages project create web-slides-students
+pnpm wrangler d1 create slides-db                       # paste the id it prints into D1_DATABASE_ID in .env
+pnpm setup                                              # remote migrations + super user from .env
+pnpm wrangler pages project create web-slides-students
 pnpm deploy
 ```
 
@@ -130,12 +160,17 @@ then `pnpm deploy`. Migrations keep existing data.
 
 ## Admin users
 
-- `pnpm admin:create <email>` adds an admin. For an existing admin it resets the password and logs
+- `pnpm admin:create [email]` adds an admin. For an existing admin it resets the password and logs
   out their sessions.
 - `admin:create:local` does the same in the local database.
-- The password comes from a hidden prompt (or the `ADMIN_PASSWORD` environment variable). It is
-  never written to disk, the repo or shell history.
-- Only its salted PBKDF2 hash is stored.
+- The email defaults to `SUPERUSER_EMAIL`.
+- The password comes from `ADMIN_PASSWORD` or `SUPERUSER_PASSWORD`, or a hidden prompt. It's
+  never passed on the command line.
+- Only its salted PBKDF2 hash is stored in the database.
+- **After the first login, change the password in `/admin` and clear `SUPERUSER_PASSWORD` from
+  `.env`**, so the real password doesn't sit in a file. Leave it empty and the script will ask.
+- Running `admin:create` again resets that admin's password to whatever `.env` (or the prompt)
+  says, so don't re-run it by accident.
 
 ## Security and privacy
 
